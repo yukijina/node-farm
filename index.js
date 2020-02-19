@@ -56,12 +56,13 @@ const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
 
 const server = http.createServer((req,res) => {
-  console.log(req.url);
+  
+  //ES6 distructure - create variable called query and pathname
 
-  const pathName = req.url;
+  const { query, pathname } = url.parse(req.url, true);
 
   // Overview page
-  if (pathName === '/' || pathName === '/overview') {
+  if (pathname === '/' || pathname === '/overview') {
     res.writeHead(200, {'Content-type': 'text/html'});
 
     //map returns array so we change it to string with "join"
@@ -70,12 +71,15 @@ const server = http.createServer((req,res) => {
     res.end(output);
 
   // Product page
-  } else if (pathName === '/product') {
+  } else if (pathname === '/product') {
     res.writeHead(200, {'Content-type': 'text/html'});
-    res.end(product)
+    const productData = dataObj[query.id];
+    //product is product file (line 53)
+    const output = replaceTemplate(product, productData)
+    res.end(output)
 
   // API
-  } else if (pathName === '/api') {
+  } else if (pathname === '/api') {
     //fs.readFile(`${__dirname}/dev-data/data.json`, 'utf-8', (err, data) => {
       //const productData = JSON.parse(data);
       // we need to tell browser that we will send json data
